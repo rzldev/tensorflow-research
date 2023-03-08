@@ -204,7 +204,7 @@ NOTE:
 '''
 
 # Check model summary
-from tensroflow.keras.utils import plot_model
+from tensorflow.keras.utils import plot_model
 
 better_model.summary()
 plot_model(better_model, show_shapes=True)
