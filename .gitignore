@@ -129,6 +129,7 @@ dmypy.json
 .pyre/
 
 # additional
+data/
 .DS_Store
 S*/*.csv
 S*/*.xlsx
