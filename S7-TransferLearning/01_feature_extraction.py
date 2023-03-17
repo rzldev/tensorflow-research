@@ -221,18 +221,18 @@ running private experiments (things you don't want others to see) do not upload
 them to TensorBoard.dev.
 '''
 
-tensorboard dev upload \
-    --logdir ./tensorflow_hub/ \
-    --name "EfficientNetB0 vs ResNet50V2" \
-    --description "Comparing two different TF Hub Feature Extraction model architectures using 10% of the training data" \
-    --one_shot
+## Upload TensorBoard dev records
 
+# tensorboard dev upload \
+#     --logdir ./tensorflow_hub/ \
+#     --name "EfficientNetB0 vs ResNet50V2" \
+#     --description "Comparing two different TF Hub Feature Extraction model architectures using 10% of the training data" \
+#     --one_shot
 
+## Checkout what TensorBoard experiments you have
 
+# tensorboard dev list
 
+## Delete an experiment
 
-
-
-
-
-
+# tensorboard dev delete --experiment-id <experiment_id>
