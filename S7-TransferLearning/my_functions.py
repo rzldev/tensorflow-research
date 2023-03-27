@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mimg
 import random
 import datetime
+import itertools
+
+from sklearn.metrics import confusion_matrix
 
 from tensorflow.keras import Model
 from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
@@ -134,7 +137,74 @@ def plot_augmented_data(augmented_data, original_data, figsize=(6, 6), label_siz
         plt.title('Augmented Image')
     plt.show()
     
-def load_and_preprocess_image(img_path='./', target_size=(224, 224)):
+def plot_confusion_matrix(y_test, y_pred, classes=False,title='Confusion Matrix', figsize=(5, 5),
+                          label_size=11, title_size=14, text_size=12, savefig=False,
+                          save_path='./'):
+    '''
+    Plot confusion matrix.
+    '''
+    # Create the confusion matrix
+    cm = confusion_matrix(y_test, y_pred)
+    cm_norm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis] # Normalize our confusion matrix
+    n_classes = cm.shape[0]
+    
+    # Pretify it
+    fig, ax = plt.subplots(figsize=figsize)
+    # Create a matrix plot
+    cax = ax.matshow(cm, cmap=plt.cm.Blues)
+    fig.colorbar(cax)
+    
+    # Create classes    
+    if classes:
+        labels = classes
+    else:
+        labels = np.arange(cm.shape[0])
+    
+    # Label the axes
+    ax.set(title=title, xlabel='Predicted Label', ylabel='True Label',
+           xticks=np.arange(n_classes), yticks=np.arange(n_classes),
+           xticklabels=labels, yticklabels=labels)
+    
+    # Set x-axis labels to bottom
+    ax.xaxis.set_label_position('bottom')
+    ax.xaxis.tick_bottom()
+    
+    # Adjust label size
+    ax.xaxis.label.set_size(label_size)
+    ax.yaxis.label.set_size(label_size)
+    ax.title.set_size(title_size)
+    
+    # Change the plot x-labels vertically
+    plt.xticks(rotation=70)
+    
+    # Set threshold for different colors
+    threshold = (cm.max() + cm.min()) / 2.
+    
+    # Plot the text on each cell
+    for i, j in itertools.product(range(n_classes), range(cm.shape[1])):
+        plt.text(j, i, f'{cm[i, j]} ({cm_norm[i, j]*100:.1f}%)',
+                 horizontalalignment='center', size=text_size,
+                 color='white' if cm[i, j] > threshold else 'black')
+    
+    # Save the figure
+    if savefig:
+        fig.savefig(save_path + title + '.png')
+        
+def plot_f1_scores(f1_scores, figsize=(10, 20), title='F1-scores'):
+    '''
+    Plot a classification report items.
+    '''
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.barh(range(len(f1_scores)), f1_scores['f1_scores'].values)
+    ax.set_yticks(range(len(f1_scores)))
+    ax.set_yticklabels(f1_scores['class_names'])
+    ax.set_xlabel('F1-score')
+    ax.set_title(title)
+    ax.invert_yaxis()
+    plt.xticks(rotation=75)
+    plt.show()
+    
+def load_and_preprocess_image(img_path='./', target_size=(224, 224), scale=True):
     '''
     Read an image from a filename, turns it into a tensor and reshapes it to
     target_size.
@@ -146,7 +216,8 @@ def load_and_preprocess_image(img_path='./', target_size=(224, 224)):
     # Resize the image
     img = tf.image.resize(img, size=target_size)
     # Rescale the image
-    img = img/225.
+    if scale:
+        img = img/255.
     return img
 
 def predict_and_visualize(model, labels=[], img_path='./image.jpg', 
@@ -154,20 +225,42 @@ def predict_and_visualize(model, labels=[], img_path='./image.jpg',
     '''
     Log and visualize the model prediction on the given data.
     '''
-    img_data = load_and_preprocess_image(img_path, target_size=(64, 64))
+    img_data = load_and_preprocess_image(img_path)
     pred = model.predict(tf.expand_dims(img_data, axis=0))
     if len(pred[0]) > 1:
-        print(tf.argmax(pred[0]))
+        print(pred[0].max())
         pred_class = labels[tf.argmax(pred[0])]
     else:
         pred_class = labels[int(tf.round(pred[0]))]
-    print(f"\nPrediction on {img_path.split('/')[-1]}: {pred_class}")
+    class_name, file_name = img_path.split('/')[-2:]
+    print(f"\nPrediction on {file_name}: {pred_class}")
+    prediction_true = (class_name.lower() == pred_class.lower())
     
     img = mimg.imread(img_path)
     plt.figure(figsize=figsize)
     plt.imshow(img)
-    plt.title(f'prediction: {pred_class}')
+    title = f'prediction: {pred_class} ({("True" if prediction_true else "False")})'
+    plt.title(title, c=('g' if prediction_true else 'r'))
     plt.axis(False)
+    plt.show()
+    
+def visualize_image_prediction(dataset, images_to_view=12):
+    '''
+    Visualizing something.
+    '''
+    if images_to_view % 3 != 0:
+        raise ValueError('images_to_view must be a multiple of 3')
+    rand_indexes = random.sample(range(len(dataset)), images_to_view)
+    start_index = 0
+    plt.figure(figsize=(int(3*5), int(images_to_view/3*5)))
+    for i, rand_idx in enumerate(rand_indexes):
+        row = dataset.iloc[rand_idx]
+        plt.subplot(int(images_to_view/3), 3, i+1)
+        img = load_and_preprocess_image(row['img_path'], scale=False)
+        pred_prob, y_true_classname, y_pred_classname = row[3:6].values
+        plt.imshow(img/255.)
+        plt.title(f'actual: {y_true_classname}, pred: {y_pred_classname} \nprob: {pred_prob}')
+        plt.axis(False)
     plt.show()
     
 def create_tensorboard_callback(dir_name, experiment_name):
