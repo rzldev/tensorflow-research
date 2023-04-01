@@ -129,41 +129,6 @@ def plot_2_model_histories(model_1_history, model_2_history, model_1_name=None,
     plt.legend()
     plt.show()
     
-# def plot_augmented_data(augmented_data, original_data, figsize=(6, 6), label_size=8,
-#                         with_keras_layers=False):
-#     '''
-#     Plotting augmented image data.
-#     '''
-#     print('\nPlotting augmented image')
-#     if with_keras_layers:
-#         augmented_images = augmented_data
-#         og_images = original_data
-#     else:
-#         augmented_images, augmented_labels = augmented_data.next()
-#         og_images, og_labels = original_data.next()
-        
-#     rand_index = random.choice(range(len(augmented_images)))
-#     augmented_img = augmented_images[rand_index]    
-    
-#     plt.figure(figsize=figsize)
-#     if len(original_data) > 0:
-#         ax = plt.subplot(1, 2, 1)
-#         plt.imshow(augmented_img)
-#         plt.axis(False)
-#         plt.title('Augmented Image')
-#         ax.title.set_size(label_size)
-        
-#         ax = plt.subplot(1, 2, 2)
-#         plt.imshow(og_images[rand_index])
-#         plt.axis(False)
-#         plt.title('Original Image')
-#         ax.title.set_size(label_size)
-#     else:
-#         plt.imshow(augmented_img)
-#         plt.axis(False)
-#         plt.title('Augmented Image')
-#     plt.show()
-    
 def plot_confusion_matrix(y_test, y_pred, classes=False,title='Confusion Matrix', figsize=(5, 5),
                           label_size=11, title_size=14, text_size=12, savefig=False,
                           save_path='./'):
@@ -230,64 +195,6 @@ def plot_f1_scores(f1_scores, figsize=(10, 20), title='F1-scores'):
     ax.invert_yaxis()
     plt.xticks(rotation=75)
     plt.show()
-    
-# def load_and_preprocess_image(img_path='./', target_size=(224, 224), scale=True):
-#     '''
-#     Read an image from a filename, turns it into a tensor and reshapes it to
-#     target_size.
-#     '''
-#     # Read in the image
-#     img = tf.io.read_file(img_path)
-#     # Decode the read image file into a tensor
-#     img = tf.image.decode_image(img)
-#     # Resize the image
-#     img = tf.image.resize(img, size=target_size)
-#     # Rescale the image
-#     if scale:
-#         img = img/255.
-#     return img
-
-# def predict_and_visualize(model, labels=[], img_path='./image.jpg', 
-#                           figsize=(6, 6), title_size=10):
-#     '''
-#     Log and visualize the model prediction on the given data.
-#     '''
-#     img_data = load_and_preprocess_image(img_path)
-#     pred = model.predict(tf.expand_dims(img_data, axis=0))
-#     if len(pred[0]) > 1:
-#         print(pred[0].max())
-#         pred_class = labels[tf.argmax(pred[0])]
-#     else:
-#         pred_class = labels[int(tf.round(pred[0]))]
-#     class_name, file_name = img_path.split('/')[-2:]
-#     print(f"\nPrediction on {file_name}: {pred_class}")
-#     prediction_true = (class_name.lower() == pred_class.lower())
-    
-#     img = mimg.imread(img_path)
-#     plt.figure(figsize=figsize)
-#     plt.imshow(img)
-#     title = f'prediction: {pred_class} ({("True" if prediction_true else "False")})'
-#     plt.title(title, c=('g' if prediction_true else 'r'))
-#     plt.axis(False)
-#     plt.show()
-    
-# def visualize_image_prediction(dataset, images_to_view=12):
-#     '''
-#     Visualizing something.
-#     '''
-#     if images_to_view % 3 != 0:
-#         raise ValueError('images_to_view must be a multiple of 3')
-#     rand_indexes = random.sample(range(len(dataset)), images_to_view)
-#     plt.figure(figsize=(int(3*5), int(images_to_view/3*5)))
-#     for i, rand_idx in enumerate(rand_indexes):
-#         row = dataset.iloc[rand_idx]
-#         plt.subplot(int(images_to_view/3), 3, i+1)
-#         img = load_and_preprocess_image(row['img_path'], scale=False)
-#         pred_prob, y_true_classname, y_pred_classname = row[3:6].values
-#         plt.imshow(img/255.)
-#         plt.title(f'actual: {y_true_classname}, pred: {y_pred_classname} \nprob: {pred_prob}')
-#         plt.axis(False)
-#     plt.show()
 
 def compare_two_model_results(results_1, results_2):
     '''
