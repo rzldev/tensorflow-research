@@ -52,7 +52,7 @@ for image, label in train_sample:
 
     # Plot the sample image
     utils.plot_sample_images(image, food101_class_names[label.numpy()], title_size=20)
-
+    
 ## Prerocess the data
 '''
 NOTE:
@@ -203,10 +203,8 @@ print('\nModel trainable layers:')
 for layer in model.layers:
   print(layer.name, layer.trainable)
 
-# # Setting the last 5 layers of the base_model to be trainable
+# Setting all of the base_model layers to be trainable
 model.trainable = True
-# for layer in model.layers[1].layers[:-5]:
-#   layer.trainable = False
 
 trainable_layers = [layer for layer in model.layers[1].layers if layer.trainable]
 print(f'\nTotal layers inside the base model: {len(model.layers[1].layers)}')
@@ -227,7 +225,8 @@ fine_tuned_tensorboard = utils.create_tensorboard_callback(dir_name=TENSORBOARD_
                                                            experiment_name=f'fine_tuned_{model.name}')
 fine_tuned_checkpoint = utils.create_model_checkpoint_callback(dir_name=CHECKPOINT_PATH,
                                                                experiment_name=f'fine_tuned_{model.name}')
-fine_tuned_early_stopping = utils.create_early_stopping_callback(patience=1)
+fine_tuned_early_stopping = utils.create_early_stopping_callback(patience=2)
+fine_tuned_reduce_lr = utils.create_reduce_lr_callback(patience=0)
 fine_tuned_model_history = model.fit(train_data,
                                      epochs=25,
                                      steps_per_epoch=len(train_data),
@@ -236,7 +235,8 @@ fine_tuned_model_history = model.fit(train_data,
                                      initial_epoch=feature_extraction_model_history.epoch[-1],
                                      callbacks=[fine_tuned_tensorboard, 
                                                 fine_tuned_checkpoint,
-                                                fine_tuned_early_stopping])
+                                                fine_tuned_early_stopping,
+                                                fine_tuned_reduce_lr])
 
 # Evaluate the model
 print('\nEvaluating the model')

@@ -3,8 +3,6 @@
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.image as mimg
-import random
 import datetime
 import itertools
 
@@ -66,6 +64,19 @@ def create_early_stopping_callback(monitor='val_loss', patience=3):
     early_stopping = EarlyStopping(monitor=monitor, 
                                    patience=patience)
     return early_stopping
+
+def create_reduce_lr_callback(monitor="val_loss", factor=0.2, patience=2, verbose=1, 
+                              min_lr=1e-7):
+    '''
+    Create and return a reduce learning rate callback to reduce the learning rate
+    one the validation loss stops improving.
+    '''
+    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor=monitor,  
+                                                     factor=factor, # multiply the learning rate by 0.2 (reduce by 5x)
+                                                     patience=patience,
+                                                     verbose=verbose, # print out when learning rate goes down 
+                                                     min_lr=min_lr)
+    return reduce_lr
 
 def plot_model_history(history):
     '''
