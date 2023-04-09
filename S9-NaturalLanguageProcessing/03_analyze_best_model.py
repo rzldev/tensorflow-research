@@ -81,35 +81,3 @@ for row in random_test_data.values:
     print(f'\nLabel: {class_name}, pred: {pred}, prob: {prob:5f}')
     print(f'Text: \n{text}\n')
     print('\n----------\n')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
